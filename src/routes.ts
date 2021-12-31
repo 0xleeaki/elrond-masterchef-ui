@@ -2,7 +2,7 @@ import React from "react";
 import * as Dapp from "@elrondnetwork/dapp";
 import { dAppName } from "config";
 import withPageTitle from "./components/PageTitle";
-import Dashboard from "./pages/Dashboard";
+import Farms from "./pages/Farms";
 import Home from "./pages/Home";
 import Transaction from "./pages/Transaction";
 
@@ -26,7 +26,7 @@ const routes: RouteType[] = [
   {
     path: "/dashboard",
     title: "Dashboard",
-    component: Dashboard,
+    component: Farms,
     authenticatedRoute: true,
   },
   {

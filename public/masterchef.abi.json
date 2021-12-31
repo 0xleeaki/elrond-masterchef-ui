@@ -1,0 +1,318 @@
+{
+  "buildInfo": {
+    "rustc": {
+      "version": "1.59.0-nightly",
+      "commitHash": "e100ec5bc7cd768ec17d75448b29c9ab4a39272b",
+      "commitDate": "2021-12-21",
+      "channel": "Nightly",
+      "short": "rustc 1.59.0-nightly (e100ec5bc 2021-12-21)"
+    },
+    "contractCrate": {
+      "name": "masterchef",
+      "version": "0.0.1"
+    },
+    "framework": {
+      "name": "elrond-wasm",
+      "version": "0.25.0"
+    }
+  },
+  "name": "MasterChef",
+  "constructor": {
+    "inputs": [
+      {
+        "name": "fund",
+        "type": "Address"
+      }
+    ],
+    "outputs": []
+  },
+  "endpoints": [
+    {
+      "docs": [
+        "@notice Deposit LP tokens to MCV2 for reward allocation.",
+        "@param pool_id The index of the pool. See `pool_info`.",
+        "@param to The receiver of `amount` deposit benefit."
+      ],
+      "name": "deposit",
+      "mutability": "mutable",
+      "payableInTokens": ["*"],
+      "inputs": [
+        {
+          "name": "pool_id",
+          "type": "u64"
+        },
+        {
+          "name": "to",
+          "type": "Address"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "docs": [
+        "@notice Withdraw LP tokens from MasterChef.",
+        "@param pool_id The index of the pool. See `pool_info`.",
+        "@param amount LP token amount to withdraw.",
+        "@param to Receiver of the LP tokens."
+      ],
+      "name": "withdraw",
+      "mutability": "mutable",
+      "inputs": [
+        {
+          "name": "pool_id",
+          "type": "u64"
+        },
+        {
+          "name": "amount",
+          "type": "BigUint"
+        },
+        {
+          "name": "to",
+          "type": "Address"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "docs": [
+        "@notice Withdraw without caring about rewards. EMERGENCY ONLY.",
+        "@param pool_id The index of the pool. See `poolInfo`.",
+        "@param to Receiver of the LP tokens."
+      ],
+      "name": "emergency_withdraw",
+      "mutability": "mutable",
+      "inputs": [
+        {
+          "name": "pool_id",
+          "type": "u64"
+        },
+        {
+          "name": "to",
+          "type": "Address"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "name": "harvest",
+      "mutability": "mutable",
+      "inputs": [
+        {
+          "name": "pool_id",
+          "type": "u64"
+        },
+        {
+          "name": "to",
+          "type": "Address"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "docs": [
+        "@notice Add a new LP to the pool. Can only be called by the owner.",
+        "DO NOT add the same LP token more than once. Rewards will be messed up if you do.",
+        "@param alloc_point AP of the new pool.",
+        "@param lp_token Address of the LP token."
+      ],
+      "name": "add",
+      "onlyOwner": true,
+      "mutability": "mutable",
+      "inputs": [
+        {
+          "name": "alloc_point",
+          "type": "BigUint"
+        },
+        {
+          "name": "lp_token",
+          "type": "TokenIdentifier"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "docs": [
+        "@notice Update the given pool's reward allocation point. Can only be called by the owner.",
+        "@param pool_id The index of the pool. See `pool_info`.",
+        "@param alloc_point New AP of the pool."
+      ],
+      "name": "set",
+      "onlyOwner": true,
+      "mutability": "mutable",
+      "inputs": [
+        {
+          "name": "pool_id",
+          "type": "u64"
+        },
+        {
+          "name": "alloc_point",
+          "type": "BigUint"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "docs": [
+        "@notice Sets the reward per second to be distributed. Can only be called by the owner.",
+        "@param reward_per_second The amount of reward to be distributed per second."
+      ],
+      "name": "set_reward_per_second",
+      "onlyOwner": true,
+      "mutability": "mutable",
+      "inputs": [
+        {
+          "name": "reward_per_second",
+          "type": "BigUint"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "docs": [
+        "@notice Set the new fund contract.",
+        "@param fund The address of new fund contract."
+      ],
+      "name": "set_fund",
+      "onlyOwner": true,
+      "mutability": "mutable",
+      "inputs": [
+        {
+          "name": "fund",
+          "type": "Address"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "docs": [
+        "@notice View function to see pending reward on frontend.",
+        "@param pool_id The index of the pool. See `pool_info`.",
+        "@param user Address of user.",
+        "@return pending reward for a given user."
+      ],
+      "name": "pendingReward",
+      "mutability": "readonly",
+      "inputs": [
+        {
+          "name": "pool_id",
+          "type": "u64"
+        },
+        {
+          "name": "user",
+          "type": "Address"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "BigUint"
+        }
+      ]
+    },
+    {
+      "name": "getFund",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Address"
+        }
+      ]
+    },
+    {
+      "name": "getTotalAllocPoint",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigUint"
+        }
+      ]
+    },
+    {
+      "name": "getRewardPerSecond",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigUint"
+        }
+      ]
+    },
+    {
+      "name": "getPoolLength",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "getPoolInfo",
+      "mutability": "readonly",
+      "inputs": [
+        {
+          "name": "id",
+          "type": "u64"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "PoolInfo"
+        }
+      ]
+    },
+    {
+      "name": "getUserInfo",
+      "mutability": "readonly",
+      "inputs": [
+        {
+          "name": "user",
+          "type": "Address"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "UserInfo"
+        }
+      ]
+    }
+  ],
+  "types": {
+    "PoolInfo": {
+      "type": "struct",
+      "fields": [
+        {
+          "name": "lp_token",
+          "type": "TokenIdentifier"
+        },
+        {
+          "name": "acc_reward_per_share",
+          "type": "BigUint"
+        },
+        {
+          "name": "last_reward_time",
+          "type": "u64"
+        },
+        {
+          "name": "alloc_point",
+          "type": "BigUint"
+        }
+      ]
+    },
+    "UserInfo": {
+      "type": "struct",
+      "fields": [
+        {
+          "name": "amount",
+          "type": "BigUint"
+        },
+        {
+          "name": "reward_debt",
+          "type": "BigUint"
+        }
+      ]
+    }
+  }
+}
