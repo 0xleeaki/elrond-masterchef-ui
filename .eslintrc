@@ -37,7 +37,7 @@
     "plugin:prettier/recommended",
     "plugin:react-hooks/recommended"
   ],
-  "plugins": ["react", "prettier", "import"],
+  "plugins": ["react", "prettier", "import", "react-hooks"],
   "rules": {
     "import/order": [
       "warn",

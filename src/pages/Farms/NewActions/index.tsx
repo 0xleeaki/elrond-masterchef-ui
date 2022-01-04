@@ -1,100 +1,92 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import * as Dapp from "@elrondnetwork/dapp";
 import {
   Address,
-  AddressValue,
   ContractFunction,
-  Query,
   BigUIntValue,
-  AbiRegistry,
   SmartContract,
-  QueryResponse,
   SmartContractAbi,
-  StructType,
-  BinaryCodec,
-  Interaction,
-  GasLimit,
   DefaultInteractionRunner,
   StrictChecker,
-  Nonce,
 } from "@elrondnetwork/erdjs";
-import { faArrowUp, faArrowDown } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import moment from "moment";
-import { masterchefContractAddress } from "config";
-import { RawTransactionType } from "helpers/types";
-import useNewTransaction from "pages/Transaction/useNewTransaction";
-import { routeNames } from "routes";
+import { loadAbiRegistry } from "@elrondnetwork/erdjs/out/testutils";
 import BigNumber from "bignumber.js";
-import {
-  extendAbiRegistry,
-  loadAbiRegistry,
-} from "@elrondnetwork/erdjs/out/testutils";
-import MasterchefABI from "../../../abis/masterchef.abi.json";
+import { masterchefContractAddress } from "config";
+import MasterChef from "contracts/MasterChef";
 
 const Actions = () => {
-  const sendTransaction = Dapp.useSendTransaction();
-  const { address, dapp, network } = Dapp.useContext();
-  const newTransaction = useNewTransaction();
+  const { dapp, network } = Dapp.useContext();
+
+  const chef = useMemo(() => {
+    return new MasterChef(masterchefContractAddress, dapp.proxy, dapp.provider);
+  }, [dapp.provider, dapp.proxy]);
 
   useEffect(() => {
-    const query = new Query({
-      address: new Address(masterchefContractAddress),
-      func: new ContractFunction("getTotalAllocPoint"),
-      args: [],
+    chef.getTotalAllocPoint().then((data) => {
+      console.log("Total Alloc Point", data.toNumber());
     });
-    dapp.proxy.queryContract(query).then(({ returnData }) => {
-      const [encoded] = returnData;
-      const decoded = Buffer.from(encoded, "base64").toString("hex");
-      console.log("TotalAllocPoint:", parseInt(decoded, 16));
-    });
-  }, []);
+  }, [chef]);
 
-  useEffect(() => {
-    test();
-  }, []);
+  const getPoolInfo = useCallback(async () => {
+    const checker = new StrictChecker();
+    const runner = new DefaultInteractionRunner(checker, network, dapp.proxy);
 
-  const test = useCallback(async () => {
     const abiRegistry = await loadAbiRegistry(["/masterchef.abi.json"]);
     const abi = new SmartContractAbi(abiRegistry, ["MasterChef"]);
+
     const contract = new SmartContract({
       address: new Address(masterchefContractAddress),
       abi,
     });
 
-    const getLotteryInfoInteraction = contract.methods
-      .getPoolInfo([new BigUIntValue(new BigNumber(0))])
-      .withGasLimit(new GasLimit(5000000));
-    const checker = new StrictChecker();
+    const result = await contract.runQuery(dapp.proxy, {
+      func: new ContractFunction("getPoolInfo"),
+      args: [new BigUIntValue(new BigNumber(0))],
+    });
 
-    const runner = new DefaultInteractionRunner(checker, undefined, dapp.proxy);
+    result.setEndpointDefinition(abi.getEndpoint("getPoolInfo"));
 
-    const x = await Promise.all([
-      runner.runAwaitExecution(
-        getLotteryInfoInteraction.withNonce(new Nonce(16)),
-      ),
-    ]);
+    console.log("result", result);
 
-    const a = getLotteryInfoInteraction.buildTransaction().getData().toString();
-    console.log("a", a);
-    // contract
-    //   .runQuery(dapp.proxy, {
-    //     func: new ContractFunction("getPoolInfo"),
-    //     args: [new BigUIntValue(new BigNumber(0))],
-    //   })
-    //   .then(({ returnData }) => {
-    //     const [encoded] = returnData; // encoded struct
-    //     const decoded = Buffer.from(encoded, "base64").toString("UTF-8");
-    //     console.log("decoded", decoded);
-    //     // const values = codec.decodeTopLevel(decoded); // error
-    //     // console.log("values:", values);
-    //   })
-    //   .catch((err) => {
-    //     console.error("Unable to call VM query", err);
-    //   });
-  }, []);
+    // const getPoolInfoInteraction = await contract.methods.getPoolInfo([100]);
+    // console.log("getPoolInfoInteraction", getPoolInfoInteraction);
+    // const {
+    //   returnCode: infoReturnCode,
+    //   values: infoReturnValues,
+    //   firstValue: infoFirstValue,
+    // } = await runner.runAwaitExecution(
+    //   getPoolInfoInteraction.withNonce(alice.getNonceThenIncrement()),
+    // );
+    // const resultParser = await runner.runQuery(getPoolInfoInteraction);
+    // console.log("resultParser", resultParser);
+  }, [dapp.proxy, network]);
 
-  return <div className="d-flex mt-4 justify-content-center">Hello action</div>;
+  useEffect(() => {
+    getPoolInfo();
+  }, [getPoolInfo]);
+
+  const deposit = useCallback(async () => {
+    console.log(
+      "deposit...",
+      dapp.provider.isInitialized(),
+      dapp.provider.isConnected(),
+    );
+    chef
+      .deposit()
+      .then(() => {
+        console.log("Deposit success!");
+      })
+      .catch(() => {
+        console.log("Deposit failed!");
+      });
+  }, [chef, dapp.provider]);
+
+  return (
+    <div className="d-flex mt-4 justify-content-center">
+      Hello action
+      <button onClick={deposit}>Deposit</button>
+    </div>
+  );
 };
 
 export default Actions;
